@@ -1,0 +1,81 @@
+// controllers/convertHandler.js
+
+function ConvertHandler() {
+
+  // Function to extract number from input
+  this.getNum = function(input) {
+    let result = input.match(/[.\d\/]+/g) || ["1"];
+    let num = result[0];
+
+    // Handle fraction input
+    if (num.includes('/')) {
+      let values = num.split('/');
+      if (values.length > 2) return 'invalid number';
+      num = parseFloat(values[0]) / parseFloat(values[1]);
+    }
+    
+    return isNaN(num) ? 'invalid number' : parseFloat(num);
+  };
+
+  // Function to extract unit from input
+  this.getUnit = function(input) {
+    let result = input.match(/[a-zA-Z]+/g);
+    let unit = result ? result[0].toLowerCase() : '';
+    
+    const validUnits = ['gal', 'l', 'mi', 'km', 'lbs', 'kg'];
+    
+    if (validUnits.includes(unit)) {
+      if (unit === 'l') return 'L';
+      return unit;
+    } else {
+      return 'invalid unit';
+    }
+  };
+
+  // Conversion logic
+  this.convert = function(initNum, initUnit) {
+    const unitMap = {
+      gal: { to: 'L', factor: 3.78541 },
+      L: { to: 'gal', factor: 1 / 3.78541 },
+      mi: { to: 'km', factor: 1.60934 },
+      km: { to: 'mi', factor: 1 / 1.60934 },
+      lbs: { to: 'kg', factor: 0.453592 },
+      kg: { to: 'lbs', factor: 1 / 0.453592 }
+    };
+
+    if (!unitMap[initUnit]) return 'invalid unit';
+    
+    const conversion = unitMap[initUnit];
+    return parseFloat((initNum * conversion.factor).toFixed(5));
+  };
+
+  // Function to get return unit
+  this.getReturnUnit = function(initUnit) {
+    const unitMap = {
+      gal: 'L',
+      L: 'gal',
+      mi: 'km',
+      km: 'mi',
+      lbs: 'kg',
+      kg: 'lbs'
+    };
+
+    return unitMap[initUnit] || 'invalid unit';
+  };
+
+  // Spell out unit for display
+  this.spellOutUnit = function(unit) {
+    const unitSpelling = {
+      gal: 'gallons',
+      L: 'liters',
+      mi: 'miles',
+      km: 'kilometers',
+      lbs: 'pounds',
+      kg: 'kilograms'
+    };
+
+    return unitSpelling[unit] || 'invalid unit';
+  };
+}
+
+module.exports = ConvertHandler;
